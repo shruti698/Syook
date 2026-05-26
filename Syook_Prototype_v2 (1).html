@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Syook — Interactive Prototype v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#534AB7;--pd:#26215C;--pt:#EEEDFE;--pb:#CECBF6;
+  --a:#BA7517;--al:#FAC775;--at:#FAEEDA;
+  --d:#E24B4A;--s:#3B6D11;--st:#EAF3DE;
+  --ink:#1B1B1B;--sec:#888780;--mu:#B4B2A9;
+  --bg:#F7F6FB;--card:#FFFFFF;--bd:#E8E6F8;
+  --grad:linear-gradient(135deg,#534AB7,#26215C);
+  --sg:linear-gradient(90deg,#534AB7,#7F77DD);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#0F0E1A;display:flex;flex-direction:column;align-items:center;padding:16px 12px 40px;font-family:'DM Sans',sans-serif;min-height:100vh}
+.oh{text-align:center;margin-bottom:16px}
+.ot{font-family:'DM Serif Display',serif;font-size:28px;color:#fff;letter-spacing:-0.5px}
+.os{font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px}
+.rs{display:flex;gap:6px;margin-bottom:14px;background:rgba(255,255,255,0.08);border-radius:100px;padding:4px}
+.rb{padding:7px 18px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;color:rgba(255,255,255,0.5);border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.rb.active{background:var(--grad);color:#fff}
+.device{width:360px;height:760px;background:var(--bg);border-radius:40px;border:9px solid #1A1A2E;box-shadow:0 32px 64px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;background:var(--bg);transition:opacity 0.2s}
+.screen.active{opacity:1;pointer-events:all}
+/* STATUS BAR */
+.sb{background:var(--grad);padding:9px 18px 5px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.sb span,.sb svg{font-size:11px;color:rgba(255,255,255,0.8);font-weight:500}
+/* TOP BAR */
+.tb{background:var(--grad);padding:7px 14px 11px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.logo{font-family:'DM Serif Display',serif;font-size:22px;line-height:1}
+.lo{color:#fff}.ly{color:var(--al)}
+.tr{display:flex;align-items:center;gap:9px}
+.bw{position:relative;cursor:pointer}
+.bd-dot{width:7px;height:7px;border-radius:50%;background:var(--d);position:absolute;top:-1px;right:-1px;border:1.5px solid #534AB7}
+.av{width:29px;height:29px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;border:1.5px solid rgba(255,255,255,0.28)}
+/* GREET */
+.gr{background:var(--grad);padding:0 14px 14px;flex-shrink:0}
+.gr-hi{font-size:11px;color:rgba(255,255,255,0.65)}
+.gr-nm{font-size:16px;font-weight:700;color:#fff;margin-top:1px}
+/* NAV BAR (back nav) */
+.nb{background:var(--card);padding:10px 14px;display:flex;align-items:center;gap:9px;border-bottom:0.5px solid var(--bd);flex-shrink:0}
+.nb-back{cursor:pointer;display:flex;align-items:center;color:var(--sec);font-size:20px;line-height:1;padding-right:4px}
+.nb-t{font-size:14px;font-weight:700;color:var(--ink);flex:1}
+/* SCROLL */
+.sc{flex:1;overflow-y:auto;background:var(--bg);-ms-overflow-style:none;scrollbar-width:none}
+.sc::-webkit-scrollbar{display:none}
+/* SECTION LABEL */
+.lbl{font-size:10px;font-weight:700;color:var(--sec);padding:9px 14px 4px;letter-spacing:.06em;text-transform:uppercase}
+/* URGENT CARD */
+.uc{margin:0 11px 5px;background:var(--card);border-radius:13px;border:.5px solid var(--bd);display:flex;overflow:hidden;cursor:pointer;transition:transform .15s}
+.uc:active{transform:scale(.98)}
+.ustrip{width:4px;flex-shrink:0}
+.us-r{background:var(--d)}.us-a{background:var(--a)}.us-p{background:var(--p)}.us-g{background:var(--s)}
+.ub{padding:9px 11px;flex:1}
+.utop{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.ubadge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.bb-r{background:#FCEBEB;color:#791F1F}.bb-a{background:var(--at);color:#633806}.bb-p{background:var(--pt);color:#3C3489}.bb-g{background:var(--st);color:#27500A}
+.ut{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.us{font-size:11px;color:var(--sec)}
+.ua{display:flex;align-items:center;padding:0 11px;color:var(--mu)}
+/* CAP */
+.cap{margin:3px 11px 5px;background:var(--pt);border-radius:10px;padding:6px 11px;display:flex;align-items:center;gap:5px}
+.cap span{font-size:11px;color:#3C3489;font-weight:600}
+/* DEAL CARD */
+.dc{background:var(--card);border-radius:13px;border:.5px solid var(--bd);padding:9px 11px;margin-bottom:5px;display:flex;gap:7px;cursor:pointer;transition:transform .15s}
+.dc:active{transform:scale(.98)}
+.ds{width:3px;flex-shrink:0;align-self:stretch;border-radius:0}
+.db{flex:1;min-width:0}
+.dt{display:flex;justify-content:space-between;margin-bottom:3px;gap:4px}
+.dn{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv{font-size:12px;font-weight:700;color:var(--s);flex-shrink:0}
+.dm{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.dc-co{font-size:11px;color:var(--sec);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.dpill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.dp-p{background:var(--pt);color:#3C3489}.dp-g{background:var(--st);color:#27500A}.dp-a{background:var(--at);color:#633806}
+.dbot{display:flex;align-items:center;gap:5px}
+.oav{width:17px;height:17px;border-radius:50%;background:var(--pt);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#3C3489;flex-shrink:0}
+.on{font-size:11px;color:var(--sec)}
+.udot{width:6px;height:6px;border-radius:50%;background:var(--d);margin-left:auto;flex-shrink:0}
+/* PIPELINE GROUP */
+.pg{margin:3px 11px 0}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:5px 0 3px;cursor:pointer}
+.pt-g{font-size:12px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:5px}
+.pc{font-size:10px;color:var(--sec);background:#F1EFE8;padding:2px 7px;border-radius:10px}
+.pg-body{overflow:hidden;transition:max-height .3s}
+/* BOTTOM NAV */
+.bnav{background:var(--card);border-top:.5px solid var(--bd);display:flex;padding:7px 0 15px;align-items:center;flex-shrink:0}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.ni svg{width:20px;height:20px;stroke:var(--mu);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ni.active svg{stroke:var(--p)}
+.ni span{font-size:9px;color:var(--mu);font-weight:500}
+.ni.active span{color:var(--p);font-weight:700}
+.addw{flex:1;display:flex;justify-content:center;align-items:center}
+.addbtn{width:42px;height:42px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;margin-top:-7px;cursor:pointer;box-shadow:0 4px 12px rgba(83,74,183,.4)}
+.addbtn svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+/* DEAL DETAIL HEADER */
+.sh{background:var(--card);padding:10px 14px 0;border-bottom:.5px solid var(--bd);flex-shrink:0}
+.deal-nm{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.dmeta{display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap}
+.ddot{width:3px;height:3px;border-radius:50%;background:var(--mu)}
+.pg-bg{height:3px;background:var(--bd);border-radius:2px;margin-bottom:3px}
+.pg-fill{height:3px;border-radius:2px;background:var(--sg)}
+.strow{display:flex;justify-content:space-between;padding-bottom:8px}
+.stcur{font-size:10px;color:var(--p);font-weight:700}
+.stend{font-size:10px;color:var(--sec)}
+/* TABS */
+.tabs{display:flex;background:var(--card);border-bottom:.5px solid var(--bd);flex-shrink:0}
+.tab{flex:1;padding:9px 0;text-align:center;font-size:11px;color:var(--sec);font-weight:600;cursor:pointer;position:relative}
+.tab.active{color:var(--p)}
+.tab.active::after{content:'';position:absolute;bottom:0;left:15%;right:15%;height:2px;background:var(--sg);border-radius:2px}
+.tc{display:none;padding:10px 11px}
+.tc.active{display:block}
+/* CARDS */
+.scard{background:var(--card);border-radius:13px;border:.5px solid var(--bd);margin-bottom:9px;overflow:hidden}
+.crow{display:flex;align-items:center;justify-content:space-between;padding:8px 11px}
+.crow+.crow{border-top:.5px solid var(--bd)}
+.cl{font-size:11px;color:var(--sec)}
+.cv{font-size:12px;font-weight:700;color:var(--ink)}
+/* SHOW MORE */
+.show-more{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;background:var(--bg);cursor:pointer;border-top:.5px solid var(--bd)}
+.sml{font-size:11px;color:var(--p);font-weight:700}
+.show-more-content{display:none;border-top:.5px solid var(--bd)}
+.show-more-content.open{display:block}
+/* ACTIVITY */
+.ai{display:flex;gap:9px;align-items:flex-start;padding:8px 11px;border-bottom:.5px solid var(--bd)}
+.ai:last-child{border-bottom:none}
+.aico{width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aip{background:var(--pt)}.aig{background:var(--st)}.aia{background:var(--at)}
+.ai-t{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:1px}
+.ai-s{font-size:11px;color:var(--sec)}
+.ai-tm{font-size:10px;color:var(--sec);margin-top:2px}
+/* DOCS */
+.dgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:10px 11px}
+.dthumb{background:var(--bg);border-radius:10px;border:.5px solid var(--bd);padding:10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.dadd{background:var(--bg);border-radius:10px;border:1.5px dashed var(--pb);padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:100%}
+.chat-msgs{flex:1;overflow-y:auto;padding:8px 11px;display:flex;flex-direction:column;gap:9px}
+.chat-msgs::-webkit-scrollbar{display:none}
+.ooo-b{display:flex;align-items:flex-start;gap:7px;background:var(--bg);border-radius:9px;border:.5px solid var(--bd);padding:7px 9px;margin-bottom:7px}
+.ooo-t{font-size:11px;color:var(--sec);line-height:1.4}
+.ooo-e{font-size:11px;color:var(--p)}
+/* PIN BANNER — multiline-safe */
+.pinb{display:flex;align-items:flex-start;gap:5px;background:var(--at);border-radius:9px;padding:6px 9px;margin-bottom:7px}
+.pinb-txt{font-size:11px;color:#633806;font-weight:600;flex:1;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pinb-close{font-size:12px;color:var(--a);cursor:pointer;flex-shrink:0;margin-top:1px}
+.cmsg{display:flex;gap:7px}
+.cav{width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.cbub{flex:1;min-width:0}
+.csn{font-size:10px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.ctxt{font-size:12px;color:var(--ink);background:var(--card);border-radius:0 9px 9px 9px;padding:6px 9px;border:.5px solid var(--bd);line-height:1.4}
+.ctag{display:inline-flex;align-items:center;gap:3px;background:var(--bg);border-radius:4px;padding:2px 6px;margin-top:3px}
+.ctag span{font-size:10px;color:var(--sec)}
+.ctm{font-size:9px;color:var(--sec);margin-top:2px}
+.cmsg.own{flex-direction:row-reverse}
+.cmsg.own .ctxt{background:var(--pt);border-color:var(--pb);border-radius:9px 0 9px 9px}
+.cmsg.own .csn,.cmsg.own .ctm{text-align:right}
+/* CHAT INPUT */
+.chat-input{display:flex;align-items:center;gap:7px;padding:8px 11px 10px;background:var(--card);border-top:.5px solid var(--bd);flex-shrink:0}
+.chat-input input{flex:1;background:var(--bg);border:.5px solid var(--bd);border-radius:20px;padding:8px 13px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none}
+.chat-input input::placeholder{color:var(--mu)}
+.send-btn{width:34px;height:34px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border:none}
+.send-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* BOTTOM BAR (deal actions) */
+.bbar{background:var(--card);border-top:.5px solid var(--bd);padding:9px 11px 16px;display:flex;gap:7px;flex-shrink:0}
+.bb{flex:1;padding:9px 0;border-radius:9px;border:.5px solid var(--bd);background:var(--bg);font-size:11px;font-weight:700;color:var(--ink);text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif}
+.bb.pri{background:var(--grad);color:#fff;border:none}
+/* BOTTOM SHEET OVERLAY */
+.so{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:flex-end}
+.so.show{display:flex}
+.sht{background:var(--card);border-radius:18px 18px 0 0;padding:11px 14px 30px;width:100%;max-height:85%;overflow-y:auto}
+.sht::-webkit-scrollbar{display:none}
+.sh-handle{width:30px;height:3px;background:var(--bd);border-radius:2px;margin:0 auto 9px}
+.sh-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:11px}
+/* FAB QUICK-SELECT GRID */
+.qsgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.qsi{background:var(--bg);border-radius:11px;border:.5px solid var(--bd);padding:13px 7px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:transform .15s}
+.qsi:active{transform:scale(.96)}
+.qsi-ico{width:36px;height:36px;border-radius:10px;background:var(--pt);display:flex;align-items:center;justify-content:center;font-size:18px}
+.qsi span{font-size:11px;font-weight:700;color:var(--ink);text-align:center}
+/* NOTIF */
+.ng{background:var(--card);border-radius:13px;border:.5px solid var(--bd);margin:0 11px 7px;overflow:hidden}
+.ngh{padding:7px 11px;border-bottom:.5px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.ngn{font-size:12px;font-weight:700;color:var(--ink)}
+.ngc{font-size:10px;color:var(--sec)}
+.ngct{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--pt);color:#3C3489;font-weight:700}
+.nitem{display:flex;align-items:flex-start;gap:6px;padding:8px 11px;border-bottom:.5px solid var(--bd)}
+.nitem:last-child{border-bottom:none}
+.nitem.unr{background:#FAFAFE}
+.nico{width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nic-r{background:#FCEBEB}.nic-a{background:var(--at)}.nic-p{background:var(--pt)}.nic-g{background:var(--st)}
+.nbdy{flex:1}
+.ntt{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:1px;line-height:1.3}
+.nts{font-size:10px;color:var(--sec);line-height:1.3}
+.ntm{font-size:9px;color:var(--sec);margin-top:2px}
+.nact{display:flex;gap:4px;margin-top:5px}
+.nab{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;border:.5px solid var(--bd);background:var(--card);color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif}
+.nab.p{background:var(--pt);color:#3C3489;border-color:var(--pb)}
+.undot{width:5px;height:5px;border-radius:50%;background:var(--p);flex-shrink:0;margin-top:4px}
+/* BL METRIC GRID */
+.mgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:0 11px 4px}
+.mcard{background:var(--card);border-radius:13px;border:.5px solid var(--bd);padding:10px 11px}
+.mlbl{font-size:10px;color:var(--sec);margin-bottom:3px;font-weight:500}
+.mval{font-size:20px;font-weight:700;color:var(--ink);line-height:1}
+.msub{font-size:10px;color:var(--sec);margin-top:2px}
+.mv-r{color:var(--d)}.mv-g{color:var(--s)}.mv-a{color:var(--a)}
+/* WON CARD */
+.won-card{background:var(--card);border-radius:13px;border:.5px solid var(--bd);padding:10px 11px;margin:0 11px 4px}
+/* TOP PERFORMER */
+.tpc{background:var(--card);border-radius:13px;border:.5px solid #C0DD97;padding:10px 11px;margin:0 11px 4px;display:flex;align-items:center;gap:9px}
+.tpa{width:31px;height:31px;border-radius:50%;background:var(--st);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#27500A}
+.tpn{font-size:13px;font-weight:700;color:var(--ink)}
+.tps{font-size:11px;color:var(--sec)}
+.tpb{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--st);color:#27500A;margin-left:auto}
+/* FLAGGED CARD */
+.fc{margin:0 11px 5px;background:var(--card);border-radius:13px;border:.5px solid var(--bd);overflow:hidden;cursor:pointer}
+.fm{display:flex;align-items:center;padding:9px 11px;gap:7px}
+.fst{width:4px;flex-shrink:0;align-self:stretch}
+.fi{flex:1;min-width:0}
+.ftt{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frs{font-size:11px;color:var(--sec);display:flex;align-items:center;gap:3px}
+/* REP CARDS */
+.rcard{margin:0 11px 5px;background:var(--card);border-radius:13px;border:.5px solid var(--bd);padding:10px 11px;cursor:pointer;transition:transform .15s}
+.rcard:active{transform:scale(.98)}
+.rtop{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.rav{width:31px;height:31px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.rn{font-size:13px;font-weight:700;color:var(--ink)}
+.rst{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:auto}
+.rs-a{background:var(--st);color:#27500A}.rs-q{background:var(--at);color:#633806}.rs-r{background:#FCEBEB;color:#791F1F}
+.rstats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.rstt{text-align:center}
+.rsv{font-size:13px;font-weight:700;color:var(--ink)}
+.rsv.r{color:var(--d)}.rsv.g{color:var(--s)}
+.rsl{font-size:9px;color:var(--sec);margin-top:1px}
+/* FILTER CHIPS */
+.fchips{display:flex;gap:5px;padding:4px 11px 7px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;flex-shrink:0}
+.fchips::-webkit-scrollbar{display:none}
+.fchip{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;border:.5px solid var(--bd);background:var(--card);color:var(--sec);cursor:pointer;flex-shrink:0;font-family:'DM Sans',sans-serif;transition:all .15s}
+.fchip.active{background:var(--pt);color:#3C3489;border-color:var(--pb)}
+/* REASSIGN */
+.rop{display:flex;align-items:center;gap:7px;padding:8px 11px;border-bottom:.5px solid var(--bd);cursor:pointer}
+.rop:last-child{border-bottom:none}
+.ro-av{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ro-i{flex:1}
+.ro-n{font-size:12px;font-weight:700;color:var(--ink)}
+.ro-m{font-size:10px;color:var(--sec)}
+.ro-s{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--bd);flex-shrink:0}
+.ro-s.sel{background:var(--pt);border-color:var(--p);display:flex;align-items:center;justify-content:center}
+.rchips{display:flex;flex-wrap:wrap;gap:5px;padding:7px 11px}
+.rchip{font-size:10px;font-weight:600;padding:4px 9px;border-radius:12px;border:.5px solid var(--bd);background:var(--card);color:var(--sec);cursor:pointer;font-family:'DM Sans',sans-serif}
+.rchip.sel{background:var(--pt);color:#3C3489;border-color:var(--pb)}
+.cta{margin:7px 11px;padding:10px;border-radius:10px;background:var(--grad);font-size:12px;font-weight:700;color:#fff;text-align:center;cursor:pointer}
+/* SUCCESS */
+.succ{display:flex;flex-direction:column;align-items:center;padding:28px 18px;text-align:center}
+.succ-ico{width:52px;height:52px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;margin-bottom:13px}
+.succ-t{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.succ-s{font-size:12px;color:var(--sec);line-height:1.5;margin-bottom:14px}
+/* BULK UPLOAD */
+.tprev{background:var(--bg);border-radius:8px;padding:7px;margin-bottom:7px}
+.tr-h{display:grid;grid-template-columns:2fr 1.5fr 1fr;gap:3px;margin-bottom:3px}
+.th{font-size:8px;font-weight:700;background:var(--pt);color:#3C3489;padding:3px 4px;border-radius:3px;text-align:center}
+.tr-d{display:grid;grid-template-columns:2fr 1.5fr 1fr;gap:3px;margin-bottom:2px}
+.td{font-size:8px;background:var(--card);border:.5px solid var(--bd);padding:3px 4px;border-radius:3px;color:var(--sec)}
+.tdrop{font-size:8px;background:var(--at);color:#633806;padding:3px 4px;border-radius:3px}
+.dl-btn{width:100%;padding:10px;border-radius:9px;background:var(--grad);font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.vrow{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:.5px solid var(--bd)}
+.vrow:last-child{border-bottom:none}
+.vl{font-size:11px;color:var(--sec)}
+.vv{font-size:11px;font-weight:700}
+/* LEAVE FLAG */
+.lflag{background:var(--at);border-radius:10px;padding:9px 10px;margin-bottom:7px}
+.lft{font-size:11px;font-weight:700;color:#633806;margin-bottom:5px}
+.lfs{font-size:10px;color:#633806;margin-bottom:7px}
+.lfa{display:flex;gap:5px}
+.lf-k{flex:1;padding:6px;border-radius:7px;font-size:10px;font-weight:700;text-align:center;cursor:pointer;background:var(--card);border:.5px solid var(--bd);color:var(--ink);font-family:'DM Sans',sans-serif}
+.lf-r{flex:1;padding:6px;border-radius:7px;font-size:10px;font-weight:700;text-align:center;cursor:pointer;background:var(--pt);color:#3C3489;font-family:'DM Sans',sans-serif}
+/* OFFLINE PILL */
+.off-pill{background:#1B1B1B;border-radius:20px;padding:5px 13px;display:flex;align-items:center;gap:4px;margin:5px auto;width:fit-content;cursor:pointer}
+.off-pill span{font-size:10px;color:#F7F6FB;font-weight:700}
+.on-pill{background:#27500A}
+.sbadge{font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px}
+.sb-p{background:var(--at);color:#633806}
+.sb-s{background:var(--st);color:#27500A}
+/* INSIGHTS */
+.ins-card{background:var(--card);border-radius:13px;border:.5px solid var(--bd);margin:0 11px 8px;overflow:hidden}
+.ins-hd{padding:11px 12px 5px;font-size:12px;font-weight:700;color:var(--ink)}
+.ins-bar-row{display:flex;align-items:center;gap:8px;padding:4px 12px 5px}
+.ins-label{font-size:11px;color:var(--sec);width:80px;flex-shrink:0}
+.ins-bar-bg{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.ins-bar-fill{height:8px;border-radius:4px;background:var(--sg)}
+.ins-val{font-size:11px;font-weight:700;color:var(--ink);min-width:28px;text-align:right}
+.ins-stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:0 11px 8px}
+.ins-stat{background:var(--card);border-radius:11px;border:.5px solid var(--bd);padding:10px 11px}
+.is-val{font-size:22px;font-weight:700;color:var(--p);line-height:1}
+.is-lbl{font-size:10px;color:var(--sec);margin-top:2px}
+/* PROFILE */
+.prof-hdr{background:var(--grad);padding:18px 14px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.prof-av{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,.35)}
+.prof-name{font-size:17px;font-weight:700;color:#fff}
+.prof-role{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px}
+.prof-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:.5px solid var(--bd);cursor:pointer}
+.prof-item:last-child{border-bottom:none}
+.prof-icon{width:32px;height:32px;border-radius:9px;background:var(--pt);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prof-label{font-size:13px;font-weight:600;color:var(--ink);flex:1}
+/* FORM FIELDS */
+.field-group{margin-bottom:9px}
+.field-label{font-size:11px;font-weight:700;color:var(--sec);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.field-input{width:100%;background:var(--bg);border:.5px solid var(--bd);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none}
+.field-input:focus{border-color:var(--pb)}
+.field-select{width:100%;background:var(--bg);border:.5px solid var(--bd);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;appearance:none}
+textarea.field-input{resize:none;min-height:72px;line-height:1.4}
+/* BL TEAM SCREEN */
+.team-sub{font-size:11px;color:var(--sec);padding:0 14px 6px}
+/* ASSIGN DEAL SHEET */
+.adeal-card{background:var(--bg);border-radius:11px;border:.5px solid var(--bd);padding:9px 11px;margin-bottom:7px}
+.adeal-nm{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.adeal-meta{font-size:11px;color:var(--sec)}
+/* SVG ICONS INLINE */
+.ico{display:inline-flex;align-items:center;justify-content:center}
+.ico svg{stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8;fill:none}
+/* TOAST */
+.toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:#1B1B1B;color:#fff;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;white-space:nowrap;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+/* ROLE LAUNCH OVERLAY */
+#role-launch{position:fixed;inset:0;background:#0F0E1A;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:20px;padding:24px}
+.rl-logo{font-family:'DM Serif Display',serif;font-size:42px;color:#fff;text-align:center;margin-bottom:8px}
+.rl-sub{font-size:13px;color:rgba(255,255,255,.5);text-align:center;margin-bottom:24px}
+.rl-card{width:100%;max-width:280px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px 18px;cursor:pointer;transition:all .2s;text-align:left}
+.rl-card:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.rl-card.sa{border-top:3px solid #534AB7}
+.rl-card.bl{border-top:3px solid var(--al)}
+.rl-role{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
+.rl-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.5}
+.rl-icon{font-size:28px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- ══════════ ROLE LAUNCH SCREEN ══════════ -->
+<div id="role-launch">
+  <div>
+    <div class="rl-logo"><span class="lo">Sy</span><span class="ly">oo</span><span class="lo">k</span></div>
+    <div class="rl-sub">Mobile Sales Operating System</div>
+  </div>
+  <div class="rl-card sa" onclick="launchAs('sa')">
+    <div class="rl-icon">📱</div>
+    <div class="rl-role">Sales Associate</div>
+    <div class="rl-desc">Manage your deals, log calls, update stages and coordinate with your team.</div>
+  </div>
+  <div class="rl-card bl" onclick="launchAs('bl')">
+    <div class="rl-icon">📊</div>
+    <div class="rl-role">Business Leader</div>
+    <div class="rl-desc">Monitor pipeline health, review team activity, assign deals and manage risk.</div>
+  </div>
+</div>
+
+<div class="oh" style="display:none" id="main-header">
+  <div class="ot"><span class="lo">Sy</span><span class="ly">oo</span><span class="lo">k</span></div>
+  <div class="os">Interactive Prototype · All flows tappable</div>
+</div>
+<div class="rs" style="display:none" id="role-switcher">
+  <button class="rb active" id="rb-sa" onclick="switchRole('sa')">Sales Associate</button>
+  <button class="rb" id="rb-bl" onclick="switchRole('bl')">Business Leader</button>
+</div>
+
+<div class="device" id="device" style="display:none">
+
+<!-- ═══════════════════════════════════════
+     SALES ASSOCIATE SCREENS
+════════════════════════════════════════ -->
+
+<!-- SA HOME -->
+<div class="screen" id="sa-home">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="tb">
+    <div class="logo"><span class="lo">Sy</span><span class="ly">oo</span><span class="lo">k</span></div>
+    <div class="tr">
+      <div class="bw" onclick="go('sa-notif')">
+        <svg width="22" height="22" viewBox="0 0 24 24" stroke="rgba(255,255,255,.9)" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="bd-dot"></div>
+      </div>
+      <div class="av">RS</div>
+    </div>
+  </div>
+  <div class="gr"><div class="gr-hi">Good morning</div><div class="gr-nm">Rahul S.</div></div>
+  <div class="sc">
+    <div class="lbl">Needs attention</div>
+    <div class="uc" onclick="go('sa-deal')"><div class="ustrip us-r"></div><div class="ub"><div class="utop"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" stroke="#E24B4A"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span class="ubadge bb-r">Action needed</span></div><div class="ut">Acme Corp — Enterprise</div><div class="us">No update in 5 days · Negotiation</div></div><div class="ua">›</div></div>
+    <div class="uc" onclick="go('sa-deal')"><div class="ustrip us-a"></div><div class="ub"><div class="utop"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" stroke="#BA7517"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="ubadge bb-a">Accept by 6pm</span></div><div class="ut">New deal assigned to you</div><div class="us">TechVision Ltd · From Priya S.</div></div><div class="ua">›</div></div>
+    <div class="uc" onclick="go('sa-deal')"><div class="ustrip us-p"></div><div class="ub"><div class="utop"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" stroke="#534AB7"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="ubadge bb-p">New message</span></div><div class="ut">GlobalNet — Q3 Proposal</div><div class="us">Priya S. replied in Team Chat</div></div><div class="ua">›</div></div>
+    <div class="cap"><span style="color:#3C3489;font-size:12px">⌄</span><span>3 more items need attention</span></div>
+    <div class="lbl">My pipeline</div>
+    <div class="pg" id="pg-neg">
+      <div class="ph" onclick="toggleGroup('pg-neg')"><div class="pt-g"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" stroke="#534AB7"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="#534AB7" stroke="none"/></svg>Negotiation</div><div style="display:flex;align-items:center;gap:5px"><span class="pc">3 deals</span><span id="pg-neg-arrow" style="font-size:12px;color:var(--mu)">▾</span></div></div>
+      <div class="pg-body" id="pg-neg-body" style="max-height:300px">
+        <div class="dc" onclick="go('sa-deal')"><div class="ds" style="background:var(--d)"></div><div class="db"><div class="dt"><span class="dn">Acme Corp — Enterprise</span><span class="dv">₹18L</span></div><div class="dm"><span class="dc-co">Acme Corporation</span><span class="dpill dp-p">Negotiation</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span><div class="udot"></div></div></div></div>
+        <div class="dc" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">GlobalNet — Q3 Proposal</span><span class="dv">₹9L</span></div><div class="dm"><span class="dc-co">GlobalNet India</span><span class="dpill dp-p">Negotiation</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+        <div class="dc" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Infosys — Q4 Deal</span><span class="dv">₹31L</span></div><div class="dm"><span class="dc-co">Infosys Ltd</span><span class="dpill dp-p">Negotiation</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+      </div>
+    </div>
+    <div class="pg" id="pg-prop">
+      <div class="ph" onclick="toggleGroup('pg-prop')"><div class="pt-g"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" stroke="#3B6D11"><circle cx="12" cy="12" r="10"/></svg>Proposal</div><div style="display:flex;align-items:center;gap:5px"><span class="pc">2 deals</span><span id="pg-prop-arrow" style="font-size:12px;color:var(--mu)">▾</span></div></div>
+      <div class="pg-body" id="pg-prop-body" style="max-height:300px">
+        <div class="dc" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">TechVision — SaaS Rollout</span><span class="dv">₹24L</span></div><div class="dm"><span class="dc-co">TechVision Ltd</span><span class="dpill dp-g">Proposal</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+        <div class="dc" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Wipro — Analytics</span><span class="dv">₹12L</span></div><div class="dm"><span class="dc-co">Wipro Ltd</span><span class="dpill dp-g">Proposal</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+      </div>
+    </div>
+    <div class="pg" id="pg-qual">
+      <div class="ph" onclick="toggleGroup('pg-qual')"><div class="pt-g"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" stroke="#BA7517"><circle cx="12" cy="12" r="10"/></svg>Qualification</div><div style="display:flex;align-items:center;gap:5px"><span class="pc">1 deal</span><span id="pg-qual-arrow" style="font-size:12px;color:var(--mu)">▾</span></div></div>
+      <div class="pg-body" id="pg-qual-body" style="max-height:0;overflow:hidden">
+        <div class="dc" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Tata Comm — Cloud</span><span class="dv">₹8L</span></div><div class="dm"><span class="dc-co">Tata Communications</span><span class="dpill dp-a">Qualification</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go('sa-pipeline')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('sa-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni" onclick="go('sa-insights')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Insights</span></div>
+    <div class="ni" onclick="go('sa-profile')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+  </div>
+</div>
+
+<!-- SA PIPELINE -->
+<div class="screen" id="sa-pipeline">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="go('sa-home')">‹</div><span class="nb-t">My Pipeline</span></div>
+  <div class="fchips" id="pipeline-filters">
+    <div class="fchip active" onclick="filterPipeline(this,'all')">All stages</div>
+    <div class="fchip" onclick="filterPipeline(this,'Negotiation')">Negotiation</div>
+    <div class="fchip" onclick="filterPipeline(this,'Proposal')">Proposal</div>
+    <div class="fchip" onclick="filterPipeline(this,'Qualification')">Qualification</div>
+    <div class="fchip" onclick="filterPipeline(this,'Prospecting')">Prospecting</div>
+  </div>
+  <div class="sc" id="pipeline-list">
+    <div class="lbl" id="sa-pl-lbl">All deals (6)</div>
+    <div class="pg" style="margin-bottom:5px">
+      <div class="dc pipeline-item" data-stage="Negotiation" onclick="go('sa-deal')"><div class="ds" style="background:var(--d)"></div><div class="db"><div class="dt"><span class="dn">Acme Corp — Enterprise</span><span class="dv">₹18L</span></div><div class="dm"><span class="dc-co">Acme Corporation</span><span class="dpill dp-p">Negotiation</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span><div class="udot"></div></div></div></div>
+      <div class="dc pipeline-item" data-stage="Negotiation" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">GlobalNet — Q3 Proposal</span><span class="dv">₹9L</span></div><div class="dm"><span class="dc-co">GlobalNet India</span><span class="dpill dp-p">Negotiation</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+      <div class="dc pipeline-item" data-stage="Negotiation" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Infosys — Q4 Deal</span><span class="dv">₹31L</span></div><div class="dm"><span class="dc-co">Infosys Ltd</span><span class="dpill dp-p">Negotiation</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+      <div class="dc pipeline-item" data-stage="Proposal" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">TechVision — SaaS Rollout</span><span class="dv">₹24L</span></div><div class="dm"><span class="dc-co">TechVision Ltd</span><span class="dpill dp-g">Proposal</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+      <div class="dc pipeline-item" data-stage="Proposal" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Wipro — Analytics</span><span class="dv">₹12L</span></div><div class="dm"><span class="dc-co">Wipro Ltd</span><span class="dpill dp-g">Proposal</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+      <div class="dc pipeline-item" data-stage="Qualification" onclick="go('sa-deal')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Tata Comm — Cloud</span><span class="dv">₹8L</span></div><div class="dm"><span class="dc-co">Tata Communications</span><span class="dpill dp-a">Qualification</span></div><div class="dbot"><div class="oav">RS</div><span class="on">You</span></div></div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="go('sa-home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni active"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('sa-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni" onclick="go('sa-insights')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Insights</span></div>
+    <div class="ni" onclick="go('sa-profile')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+  </div>
+</div>
+
+<!-- SA DEAL DETAIL -->
+<div class="screen" id="sa-deal">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="back()">‹</div><span class="nb-t">Deal detail</span><span style="font-size:18px;color:var(--sec);cursor:pointer" onclick="showSheet('deal-options-sheet')">⋯</span></div>
+  <div class="sh">
+    <div class="deal-nm">Acme Corp — Enterprise Deal</div>
+    <div class="dmeta"><span style="font-size:12px;color:var(--sec)">Acme Corporation</span><div class="ddot"></div><span style="font-size:12px;font-weight:700;color:var(--s)">₹18L</span><div class="ddot"></div><span style="font-size:12px;color:var(--sec)">Active 24 days</span></div>
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><div class="oav" style="width:17px;height:17px;font-size:8px">RS</div><span style="font-size:11px;color:var(--sec)">Owned by Rahul S.</span></div>
+    <div class="pg-bg"><div class="pg-fill" style="width:60%"></div></div>
+    <div class="strow"><span class="stcur">Negotiation</span><span class="stend">Close</span></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'deal-t')">Deal</div>
+    <div class="tab" onclick="switchTab(this,'hist-t')">History</div>
+    <div class="tab" onclick="switchTab(this,'docs-t')">Docs</div>
+    <div class="tab" onclick="switchTab(this,'chat-t')">Team Chat</div>
+  </div>
+  <div class="sc" style="padding:0;display:flex;flex-direction:column">
+    <!-- DEAL TAB -->
+    <div class="tc active" id="deal-t">
+      <div class="scard" style="margin-top:0">
+        <div style="display:flex;align-items:center;gap:9px;padding:10px 11px"><div class="oav" style="width:30px;height:30px;font-size:11px;font-weight:700">AK</div><div><div style="font-size:13px;font-weight:700;color:var(--ink)">Arvind Kumar</div><div style="font-size:11px;color:var(--sec)">VP Procurement · Acme Corp</div></div><div style="margin-left:auto;display:flex;gap:5px"><div style="width:27px;height:27px;border-radius:50%;background:var(--bg);border:.5px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer">📞</div><div style="width:27px;height:27px;border-radius:50%;background:var(--bg);border:.5px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer">✉️</div></div></div>
+      </div>
+      <div class="scard">
+        <div style="padding:9px 11px 7px;font-size:11px;color:var(--sec);font-weight:700">Deal description</div>
+        <div style="padding:0 11px 9px;font-size:12px;color:var(--sec);line-height:1.5">Enterprise SaaS rollout across 3 business units. POC approved. Now in commercial negotiation.</div>
+        <div class="crow"><span class="cl">Expected close</span><span class="cv">Jun 30, 2026</span></div>
+        <div class="crow"><span class="cl">Linked documents</span><span class="cv" style="color:var(--p)">4 files</span></div>
+        <div class="show-more" onclick="toggleShowMore(this)">
+          <span class="sml">Show more — next action, notes, deal source</span>
+          <span class="show-more-arrow" style="color:var(--p);font-size:14px">▾</span>
+        </div>
+        <div class="show-more-content">
+          <div class="crow"><span class="cl">Next action</span><span class="cv">Send revised pricing</span></div>
+          <div class="crow"><span class="cl">Deal source</span><span class="cv">Inbound lead</span></div>
+          <div style="padding:9px 11px;font-size:11px;color:var(--sec);font-weight:700">Deal notes</div>
+          <div style="padding:0 11px 9px;font-size:12px;color:var(--sec);line-height:1.5">Client is price-sensitive. Competing with two other vendors. Decision expected by Jun 20.</div>
+        </div>
+      </div>
+    </div>
+    <!-- HISTORY TAB -->
+    <div class="tc" id="hist-t">
+      <div class="fchips" style="padding:0 0 8px">
+        <div class="fchip active" onclick="filterHistory(this,'all')">All</div>
+        <div class="fchip" onclick="filterHistory(this,'call')">Calls</div>
+        <div class="fchip" onclick="filterHistory(this,'meeting')">Meetings</div>
+        <div class="fchip" onclick="filterHistory(this,'note')">Notes</div>
+        <div class="fchip" onclick="filterHistory(this,'stage')">Stage changes</div>
+      </div>
+      <div class="scard" style="margin-top:0">
+        <div class="ai hist-item" data-type="call"><div class="aico aip">📞</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Call logged</span><span class="ai-tm">Today 11:20am</span></div><div class="ai-s">Connected · Discussed pricing terms</div><div class="ai-tm">by Rahul S.</div></div></div>
+        <div class="ai hist-item" data-type="stage"><div class="aico aig">→</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Stage updated</span><span class="ai-tm">Yesterday</span></div><div class="ai-s">Proposal → Negotiation</div><div class="ai-tm">by Rahul S.</div></div></div>
+        <div class="ai hist-item" data-type="meeting"><div class="aico aia">👥</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Meeting held</span><span class="ai-tm">May 20</span></div><div class="ai-s">Demo to procurement team</div><div class="ai-tm">by Rahul S.</div></div></div>
+        <div class="ai hist-item" data-type="note"><div class="aico aip">📝</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Note added</span><span class="ai-tm">May 18</span></div><div class="ai-s">Client requested competitive pricing comparison</div><div class="ai-tm">by Rahul S.</div></div></div>
+        <div class="ai hist-item" data-type="call"><div class="aico aip">📞</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Call logged</span><span class="ai-tm">May 15</span></div><div class="ai-s">No answer · Left voicemail</div><div class="ai-tm">by Rahul S.</div></div></div>
+      </div>
+    </div>
+    <!-- DOCS TAB -->
+    <div class="tc" id="docs-t">
+      <div style="font-size:11px;color:var(--sec);margin-bottom:5px">4 documents · tap to open</div>
+      <div class="dgrid">
+        <div class="dthumb"><span style="font-size:24px">📄</span><div style="font-size:10px;font-weight:700;color:var(--ink);text-align:center">Proposal v2.pdf</div><div style="font-size:9px;color:var(--sec)">May 18</div></div>
+        <div class="dthumb"><span style="font-size:24px">📊</span><div style="font-size:10px;font-weight:700;color:var(--ink);text-align:center">Pricing Sheet.xlsx</div><div style="font-size:9px;color:var(--sec)">May 20</div></div>
+        <div class="dthumb"><span style="font-size:24px">📑</span><div style="font-size:10px;font-weight:700;color:var(--ink);text-align:center">Demo Deck.pptx</div><div style="font-size:9px;color:var(--sec)">May 15</div></div>
+        <div class="dadd" onclick="showToast('Upload feature coming soon')"><span style="font-size:18px;color:var(--mu)">+</span><span style="font-size:10px;color:var(--sec)">Add document</span></div>
+      </div>
+    </div>
+    <!-- CHAT TAB -->
+    <div class="tc" id="chat-t" style="padding:0;display:flex;flex-direction:column;flex:1">
+      <div style="flex:1;overflow-y:auto;padding:9px 11px;-ms-overflow-style:none;scrollbar-width:none" id="chat-messages">
+        <div class="ooo-b"><span style="font-size:13px;color:var(--sec);flex-shrink:0">🚫</span><div><div class="ooo-t">Priya S. is on leave until Jun 3. For urgent matters —</div><div class="ooo-e">priya.s@syook.com</div></div></div>
+        <div class="pinb"><span style="font-size:12px;color:var(--a);flex-shrink:0">📌</span><span class="pinb-txt">Client wants revised pricing by May 28 — prioritise this before end of week</span><span class="pinb-close">✕</span></div>
+        <div class="cmsg"><div class="cav" style="background:var(--pt);color:#3C3489">PS</div><div class="cbub"><div class="csn">Priya S.</div><div class="ctxt">Arvind mentioned they need revised pricing before end of May. Can you update the sheet?<div class="ctag"><span style="font-size:10px">🔗</span><span>Linked: Call — May 22</span></div></div><div class="ctm">May 22 · 3:14pm</div></div></div>
+        <div class="cmsg own"><div class="cav" style="background:var(--st);color:#27500A">RS</div><div class="cbub"><div class="csn">Rahul S.</div><div class="ctxt">On it — uploading revised pricing sheet now.</div><div class="ctm">May 22 · 4:02pm</div></div></div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chat-msg-input" placeholder="Message team..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+        <div class="send-btn" onclick="sendChatMsg()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+      </div>
+    </div>
+  </div>
+  <div class="bbar" id="deal-bbar">
+    <div class="bb" onclick="showSheet('log-call-sheet')">Log call</div>
+    <div class="bb pri" onclick="showSheet('update-stage-sheet')">Update stage</div>
+    <div class="bb" onclick="showSheet('add-note-sheet')">Add note</div>
+  </div>
+</div>
+
+<!-- SA NOTIFICATIONS -->
+<div class="screen" id="sa-notif">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="back()">‹</div><span class="nb-t">Notifications</span><span style="font-size:11px;color:var(--p);font-weight:700;cursor:pointer">Mark all read</span></div>
+  <div class="sc">
+    <div class="lbl">Today</div>
+    <div class="ng"><div class="ngh"><div><div class="ngn">Acme Corp — Enterprise</div><div class="ngc">Acme Corporation</div></div><span class="ngct">2 new</span></div>
+      <div class="nitem unr"><div class="nico nic-r">🚨</div><div class="nbdy"><div class="ntt">Deal flagged to your leader</div><div class="nts">No update 5 days — leader can now see this deal</div><div class="ntm">11:20am</div><div class="nact"><div class="nab p" onclick="go('sa-deal')">Update now</div><div class="nab" onclick="go('sa-deal')">View deal</div></div></div><div class="undot"></div></div>
+      <div class="nitem unr"><div class="nico nic-a">⏱</div><div class="nbdy"><div class="ntt">Update reminder</div><div class="nts">No activity in 3 days</div><div class="ntm">9:00am</div></div><div class="undot"></div></div>
+    </div>
+    <div class="ng"><div class="ngh"><div><div class="ngn">TechVision — SaaS Rollout</div><div class="ngc">TechVision Ltd</div></div><span class="ngct">1 new</span></div>
+      <div class="nitem unr"><div class="nico nic-p">👤</div><div class="nbdy"><div class="ntt">Deal assigned to you</div><div class="nts">From Priya S. · Accept within 24hrs</div><div class="ntm">8:30am</div><div class="nact"><div class="nab p" onclick="showToast('Deal accepted ✓')">Accept</div><div class="nab" onclick="go('sa-deal')">View deal</div></div></div><div class="undot"></div></div>
+    </div>
+    <div class="lbl">Yesterday</div>
+    <div class="ng"><div class="ngh"><div><div class="ngn">GlobalNet — Q3 Proposal</div><div class="ngc">GlobalNet India</div></div></div>
+      <div class="nitem"><div class="nico nic-g">✓</div><div class="nbdy"><div class="ntt">Stage updated successfully</div><div class="nts">Proposal → Negotiation</div><div class="ntm">Yesterday 3:45pm</div></div></div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="go('sa-home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go('sa-pipeline')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('sa-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni" onclick="go('sa-insights')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Insights</span></div>
+    <div class="ni" onclick="go('sa-profile')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+  </div>
+</div>
+
+<!-- SA INSIGHTS -->
+<div class="screen" id="sa-insights">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="tb"><div class="logo"><span class="lo">Sy</span><span class="ly">oo</span><span class="lo">k</span></div><div class="tr"><div class="av">RS</div></div></div>
+  <div class="gr"><div class="gr-hi">May 2026</div><div class="gr-nm">Your performance</div></div>
+  <div class="sc">
+    <div class="ins-stat-row">
+      <div class="ins-stat"><div class="is-val">₹62L</div><div class="is-lbl">Pipeline value</div></div>
+      <div class="ins-stat"><div class="is-val" style="color:var(--s)">₹14L</div><div class="is-lbl">Won this month</div></div>
+      <div class="ins-stat"><div class="is-val">6</div><div class="is-lbl">Active deals</div></div>
+      <div class="ins-stat"><div class="is-val" style="color:var(--d)">2</div><div class="is-lbl">At risk</div></div>
+    </div>
+    <div class="ins-card">
+      <div class="ins-hd">Deals by stage</div>
+      <div class="ins-bar-row"><span class="ins-label">Negotiation</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:60%"></div></div><span class="ins-val">3</span></div>
+      <div class="ins-bar-row"><span class="ins-label">Proposal</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:40%"></div></div><span class="ins-val">2</span></div>
+      <div class="ins-bar-row" style="padding-bottom:10px"><span class="ins-label">Qualification</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:20%"></div></div><span class="ins-val">1</span></div>
+    </div>
+    <div class="ins-card">
+      <div class="ins-hd">Activity this month</div>
+      <div class="ins-bar-row"><span class="ins-label">Calls</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:80%"></div></div><span class="ins-val">16</span></div>
+      <div class="ins-bar-row"><span class="ins-label">Meetings</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:45%"></div></div><span class="ins-val">9</span></div>
+      <div class="ins-bar-row" style="padding-bottom:10px"><span class="ins-label">Notes</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:30%"></div></div><span class="ins-val">6</span></div>
+    </div>
+    <div class="ins-card">
+      <div class="ins-hd">Win rate trend</div>
+      <div class="ins-bar-row"><span class="ins-label">Mar 2026</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:50%;background:var(--sg)"></div></div><span class="ins-val">48%</span></div>
+      <div class="ins-bar-row"><span class="ins-label">Apr 2026</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:62%;background:var(--sg)"></div></div><span class="ins-val">60%</span></div>
+      <div class="ins-bar-row" style="padding-bottom:10px"><span class="ins-label">May 2026</span><div class="ins-bar-bg"><div class="ins-bar-fill" style="width:72%;background:linear-gradient(90deg,var(--s),#5EA823)"></div></div><span class="ins-val">70%</span></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="go('sa-home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go('sa-pipeline')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('sa-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni active"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Insights</span></div>
+    <div class="ni" onclick="go('sa-profile')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+  </div>
+</div>
+
+<!-- SA PROFILE -->
+<div class="screen" id="sa-profile">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="prof-hdr">
+    <div class="prof-av">RS</div>
+    <div><div class="prof-name">Rahul Sharma</div><div class="prof-role">Sales Associate · Mumbai</div></div>
+  </div>
+  <div class="sc">
+    <div class="lbl">Account</div>
+    <div class="scard" style="margin:0 11px 8px">
+      <div class="prof-item"><div class="prof-icon">📱</div><span class="prof-label">Notifications</span><span style="color:var(--mu)">›</span></div>
+      <div class="prof-item"><div class="prof-icon">🌍</div><span class="prof-label">Timezone — Asia/Kolkata</span><span style="color:var(--mu)">›</span></div>
+      <div class="prof-item"><div class="prof-icon">🏖</div><span class="prof-label">Leave management</span><span style="color:var(--mu)">›</span></div>
+      <div class="prof-item"><div class="prof-icon">📋</div><span class="prof-label">My reassignment history</span><span style="color:var(--mu)">›</span></div>
+    </div>
+    <div class="lbl">Activity</div>
+    <div class="scard" style="margin:0 11px 8px">
+      <div class="crow"><span class="cl">Total deals worked</span><span class="cv">47</span></div>
+      <div class="crow"><span class="cl">Deals won (all time)</span><span class="cv" style="color:var(--s)">12</span></div>
+      <div class="crow"><span class="cl">Avg deal cycle</span><span class="cv">22 days</span></div>
+      <div class="crow"><span class="cl">Win rate (May)</span><span class="cv" style="color:var(--s)">70%</span></div>
+    </div>
+    <div class="scard" style="margin:0 11px 8px">
+      <div class="prof-item" style="color:var(--d)" onclick="showToast('Signed out')"><div class="prof-icon" style="background:#FCEBEB">🚪</div><span class="prof-label" style="color:var(--d)">Sign out</span></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="go('sa-home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go('sa-pipeline')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('sa-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni" onclick="go('sa-insights')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Insights</span></div>
+    <div class="ni active"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     BUSINESS LEADER SCREENS
+════════════════════════════════════════ -->
+
+<!-- BL HOME -->
+<div class="screen" id="bl-home">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="tb"><div class="logo"><span class="lo">Sy</span><span class="ly">oo</span><span class="lo">k</span></div><div class="tr"><div class="bw" onclick="go('bl-notif')"><svg width="22" height="22" viewBox="0 0 24 24" stroke="rgba(255,255,255,.9)" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="bd-dot"></div></div><div class="av">AK</div></div></div>
+  <div class="gr"><div class="gr-hi">Good morning</div><div class="gr-nm">Arjun K.</div></div>
+  <div class="sc">
+    <div class="lbl">Pipeline health</div>
+    <div class="mgrid">
+      <div class="mcard"><div class="mlbl">Total pipeline</div><div class="mval">₹2.4Cr</div><div class="msub">24 active deals</div></div>
+      <div class="mcard"><div class="mlbl">Critical deals</div><div class="mval mv-r">4</div><div class="msub">need action now</div></div>
+      <div class="mcard"><div class="mlbl">Stale deals</div><div class="mval mv-a">7</div><div class="msub">no update 3+ days</div></div>
+      <div class="mcard"><div class="mlbl">Avg days to close</div><div class="mval">18d</div><div class="msub">↓ 3 days vs last mo.</div></div>
+    </div>
+    <div class="won-card"><div class="mlbl">Won this month</div><div class="mval mv-g">₹38L</div><div class="msub">6 deals · 72% of monthly target</div></div>
+    <div class="lbl">Top performer</div>
+    <div class="tpc"><div class="tpa">PS</div><div style="flex:1"><div class="tpn">Priya Sharma</div><div class="tps">₹14L won · 3 deals closed</div></div><span class="tpb">⭐ Top rep</span></div>
+    <div class="lbl">Flagged deals</div>
+    <div class="fc" onclick="go('bl-reassign')"><div class="fm"><div class="fst us-r" style="height:36px"></div><div class="fi"><div class="ftt">Acme Corp — Enterprise</div><div class="frs">🔴 No update 5 days · Rahul M.</div></div><span style="font-size:15px;color:var(--mu)">▾</span></div></div>
+    <div class="fc" onclick="go('bl-reassign')"><div class="fm"><div class="fst us-a" style="height:36px"></div><div class="fi"><div class="ftt">GlobalNet — Q3 Proposal</div><div class="frs">🕐 On hold 2× — review needed</div></div><span style="font-size:15px;color:var(--mu)">›</span></div></div>
+    <div class="lbl">Rep activity</div>
+    <div class="fchips" id="bl-rep-filter">
+      <div class="fchip active" onclick="filterReps(this,'all')">All reps</div>
+      <div class="fchip" onclick="filterReps(this,'active')">Active</div>
+      <div class="fchip" onclick="filterReps(this,'quiet')">Quiet</div>
+      <div class="fchip" onclick="filterReps(this,'risk')">At risk</div>
+    </div>
+    <div class="rcard rep-item" data-status="active" onclick="go('bl-rep-detail')"><div class="rtop"><div class="rav" style="background:var(--st);color:#27500A">PS</div><div><div class="rn">Priya Sharma</div></div><span class="rst rs-a">Active</span></div><div class="rstats"><div class="rstt"><div class="rsv">8</div><div class="rsl">Active</div></div><div class="rstt"><div class="rsv r">1</div><div class="rsl">At risk</div></div><div class="rstt"><div class="rsv g">3</div><div class="rsl">Won</div></div><div class="rstt"><div class="rsv">2h</div><div class="rsl">Last active</div></div></div></div>
+    <div class="rcard rep-item" data-status="quiet" onclick="go('bl-rep-detail')"><div class="rtop"><div class="rav" style="background:var(--at);color:#633806">RM</div><div><div class="rn">Rahul Mehta</div></div><span class="rst rs-q">Quiet</span></div><div class="rstats"><div class="rstt"><div class="rsv">6</div><div class="rsl">Active</div></div><div class="rstt"><div class="rsv r">3</div><div class="rsl">At risk</div></div><div class="rstt"><div class="rsv g">1</div><div class="rsl">Won</div></div><div class="rstt"><div class="rsv">1d</div><div class="rsl">Last active</div></div></div></div>
+    <div class="rcard rep-item" data-status="active" onclick="go('bl-rep-detail')"><div class="rtop"><div class="rav" style="background:var(--pt);color:#3C3489">NK</div><div><div class="rn">Neha Kumar</div></div><span class="rst rs-a">Active</span></div><div class="rstats"><div class="rstt"><div class="rsv">4</div><div class="rsl">Active</div></div><div class="rstt"><div class="rsv r">0</div><div class="rsl">At risk</div></div><div class="rstt"><div class="rsv g">2</div><div class="rsl">Won</div></div><div class="rstt"><div class="rsv">30m</div><div class="rsl">Last active</div></div></div></div>
+    <div class="rcard rep-item" data-status="risk" onclick="go('bl-rep-detail')"><div class="rtop"><div class="rav" style="background:#FCEBEB;color:#791F1F">VR</div><div><div class="rn">Vikram Rao</div></div><span class="rst rs-r">At risk</span></div><div class="rstats"><div class="rstt"><div class="rsv">3</div><div class="rsl">Active</div></div><div class="rstt"><div class="rsv r">2</div><div class="rsl">At risk</div></div><div class="rstt"><div class="rsv g">0</div><div class="rsl">Won</div></div><div class="rstt"><div class="rsv">3d</div><div class="rsl">Last active</div></div></div></div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go('bl-pipeline')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('bl-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni" onclick="go('bl-team')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Team</span></div>
+    <div class="ni" onclick="go('bl-settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></div>
+  </div>
+</div>
+
+<!-- BL PIPELINE -->
+<div class="screen" id="bl-pipeline">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="go('bl-home')">‹</div><span class="nb-t">Team Pipeline</span></div>
+  <div class="fchips" id="bl-pipeline-filters">
+    <div class="fchip active" onclick="filterBLPipeline(this,'all')">All</div>
+    <div class="fchip" onclick="filterBLPipeline(this,'critical')">Critical</div>
+    <div class="fchip" onclick="filterBLPipeline(this,'stale')">Stale</div>
+    <div class="fchip" onclick="filterBLPipeline(this,'Negotiation')">Negotiation</div>
+    <div class="fchip" onclick="filterBLPipeline(this,'Proposal')">Proposal</div>
+  </div>
+  <div class="sc">
+    <div class="lbl" id="bl-pl-lbl">All team deals (9)</div>
+    <div class="pg">
+      <div class="dc blp-item" data-stage="Negotiation" data-state="critical" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--d)"></div><div class="db"><div class="dt"><span class="dn">Acme Corp — Enterprise</span><span class="dv">₹18L</span></div><div class="dm"><span class="dc-co">Rahul M.</span><span class="dpill dp-p">Negotiation 🔴</span></div><div class="dbot"><div class="oav" style="background:var(--at);color:#633806">RM</div><span class="on">Rahul M.</span><div class="udot"></div></div></div></div>
+      <div class="dc blp-item" data-stage="Negotiation" data-state="stale" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--a)"></div><div class="db"><div class="dt"><span class="dn">GlobalNet — Q3 Proposal</span><span class="dv">₹9L</span></div><div class="dm"><span class="dc-co">Priya S.</span><span class="dpill dp-p">Negotiation ⚠️</span></div><div class="dbot"><div class="oav" style="background:var(--st);color:#27500A">PS</div><span class="on">Priya S.</span></div></div></div>
+      <div class="dc blp-item" data-stage="Proposal" data-state="healthy" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">TechVision — SaaS</span><span class="dv">₹24L</span></div><div class="dm"><span class="dc-co">Priya S.</span><span class="dpill dp-g">Proposal</span></div><div class="dbot"><div class="oav" style="background:var(--st);color:#27500A">PS</div><span class="on">Priya S.</span></div></div></div>
+      <div class="dc blp-item" data-stage="Proposal" data-state="critical" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--d)"></div><div class="db"><div class="dt"><span class="dn">Infosys — Q4 Deal</span><span class="dv">₹31L</span></div><div class="dm"><span class="dc-co">Neha K.</span><span class="dpill dp-g">Proposal 🔴</span></div><div class="dbot"><div class="oav" style="background:var(--pt);color:#3C3489">NK</div><span class="on">Neha K.</span><div class="udot"></div></div></div></div>
+      <div class="dc blp-item" data-stage="Negotiation" data-state="healthy" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Wipro — Analytics</span><span class="dv">₹12L</span></div><div class="dm"><span class="dc-co">Rahul M.</span><span class="dpill dp-p">Negotiation</span></div><div class="dbot"><div class="oav" style="background:var(--at);color:#633806">RM</div><span class="on">Rahul M.</span></div></div></div>
+      <div class="dc blp-item" data-stage="Proposal" data-state="stale" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--a)"></div><div class="db"><div class="dt"><span class="dn">HCL — Security</span><span class="dv">₹7L</span></div><div class="dm"><span class="dc-co">Neha K.</span><span class="dpill dp-g">Proposal ⚠️</span></div><div class="dbot"><div class="oav" style="background:var(--pt);color:#3C3489">NK</div><span class="on">Neha K.</span></div></div></div>
+      <div class="dc blp-item" data-stage="Negotiation" data-state="stale" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--a)"></div><div class="db"><div class="dt"><span class="dn">Tata Comm — Cloud</span><span class="dv">₹8L</span></div><div class="dm"><span class="dc-co">Vikram R.</span><span class="dpill dp-p">Negotiation ⚠️</span></div><div class="dbot"><div class="oav" style="background:#FCEBEB;color:#791F1F">VR</div><span class="on">Vikram R.</span></div></div></div>
+      <div class="dc blp-item" data-stage="Proposal" data-state="healthy" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Bajaj — FinTech</span><span class="dv">₹15L</span></div><div class="dm"><span class="dc-co">Priya S.</span><span class="dpill dp-g">Proposal</span></div><div class="dbot"><div class="oav" style="background:var(--st);color:#27500A">PS</div><span class="on">Priya S.</span></div></div></div>
+      <div class="dc blp-item" data-stage="Negotiation" data-state="critical" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--d)"></div><div class="db"><div class="dt"><span class="dn">Reliance — Enterprise</span><span class="dv">₹42L</span></div><div class="dm"><span class="dc-co">Neha K.</span><span class="dpill dp-g">Negotiation 🔴</span></div><div class="dbot"><div class="oav" style="background:var(--pt);color:#3C3489">NK</div><span class="on">Neha K.</span><div class="udot"></div></div></div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="go('bl-home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni active"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('bl-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni" onclick="go('bl-team')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Team</span></div>
+    <div class="ni" onclick="go('bl-settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></div>
+  </div>
+</div>
+
+<!-- BL DEAL VIEW (Leader read-only) -->
+<div class="screen" id="bl-deal-view">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="back()">‹</div><span class="nb-t">Deal overview</span><div class="addbtn" style="width:28px;height:28px;margin-top:0;box-shadow:none" onclick="go('bl-reassign')"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div></div>
+  <div class="sh">
+    <div class="deal-nm">Acme Corp — Enterprise Deal</div>
+    <div class="dmeta"><span style="font-size:12px;color:var(--sec)">Acme Corporation</span><div class="ddot"></div><span style="font-size:12px;font-weight:700;color:var(--s)">₹18L</span><div class="ddot"></div><span style="font-size:12px;color:var(--sec)">Active 24 days</span></div>
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><div class="oav" style="width:17px;height:17px;font-size:8px;background:var(--at);color:#633806">RM</div><span style="font-size:11px;color:var(--sec)">Owned by Rahul M.</span></div>
+    <div class="pg-bg"><div class="pg-fill" style="width:60%"></div></div>
+    <div class="strow"><span class="stcur">Negotiation</span><span class="stend">Close</span></div>
+  </div>
+  <div class="sc" style="padding:10px 11px">
+    <div style="background:#FCEBEB;border-radius:11px;padding:9px 11px;margin-bottom:9px;display:flex;align-items:flex-start;gap:7px">
+      <span>🔴</span>
+      <div><div style="font-size:11px;font-weight:700;color:#791F1F;margin-bottom:2px">No update in 5 days</div><div style="font-size:11px;color:#791F1F">Last activity: Call logged May 20 by Rahul M.</div></div>
+    </div>
+    <div class="scard">
+      <div class="crow"><span class="cl">Rep assigned</span><span class="cv">Rahul Mehta</span></div>
+      <div class="crow"><span class="cl">Last update</span><span class="cv" style="color:var(--d)">5 days ago</span></div>
+      <div class="crow"><span class="cl">Expected close</span><span class="cv">Jun 30, 2026</span></div>
+      <div class="crow"><span class="cl">Stage</span><span class="cv">Negotiation</span></div>
+      <div class="crow"><span class="cl">Deal value</span><span class="cv">₹18L</span></div>
+    </div>
+    <div class="lbl" style="padding-left:0">Recent activity</div>
+    <div class="scard">
+      <div class="ai"><div class="aico aip">📞</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Call logged</span><span class="ai-tm">May 20</span></div><div class="ai-s">Connected · Discussed pricing</div><div class="ai-tm">by Rahul M.</div></div></div>
+      <div class="ai"><div class="aico aig">→</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Stage updated</span><span class="ai-tm">May 18</span></div><div class="ai-s">Proposal → Negotiation</div><div class="ai-tm">by Rahul M.</div></div></div>
+    </div>
+    <div class="cta" onclick="go('bl-reassign')">Reassign deal</div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- BL REASSIGN -->
+<div class="screen" id="bl-reassign">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="back()">‹</div><span class="nb-t">Reassign deal</span></div>
+  <div class="sc">
+    <div class="lbl">Deal</div>
+    <div class="adeal-card"><div class="adeal-nm">Acme Corp — Enterprise</div><div class="adeal-meta">₹18L · Negotiation · Currently: Rahul M.</div></div>
+    <div class="lflag">
+      <div class="lft">🔴 No update in 5 days</div>
+      <div class="lfs">This deal has been flagged for inactivity. Reassigning will notify both reps immediately.</div>
+      <div class="lfa"><div class="lf-k">Keep with Rahul</div><div class="lf-r" onclick="go('bl-reassign-pick')">Reassign now</div></div>
+    </div>
+    <div class="lbl">Reason for reassignment</div>
+    <div class="rchips">
+      <div class="rchip" onclick="toggleChip(this)">Rep inactive</div>
+      <div class="rchip sel" onclick="toggleChip(this)">No update 5+ days</div>
+      <div class="rchip" onclick="toggleChip(this)">Rep on leave</div>
+      <div class="rchip" onclick="toggleChip(this)">Skill mismatch</div>
+      <div class="rchip" onclick="toggleChip(this)">Client request</div>
+    </div>
+    <div class="lbl">Add a note (optional)</div>
+    <div style="padding:0 11px 9px"><textarea class="field-input" placeholder="e.g. Escalating due to no update for 5 days..."></textarea></div>
+    <div class="cta" onclick="go('bl-reassign-pick')">Choose new rep →</div>
+  </div>
+</div>
+
+<!-- BL REASSIGN PICK -->
+<div class="screen" id="bl-reassign-pick">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="go('bl-reassign')">‹</div><span class="nb-t">Select rep</span></div>
+  <div class="sc">
+    <div class="lbl">Available reps</div>
+    <div class="scard" style="margin:0 11px 9px">
+      <div class="rop" onclick="selectRep(this)"><div class="ro-av" style="background:var(--st);color:#27500A">PS</div><div class="ro-i"><div class="ro-n">Priya Sharma</div><div class="ro-m">8 active deals · Last active 2h ago · <span style="color:var(--s)">Available</span></div></div><div class="ro-s sel">✓</div></div>
+      <div class="rop" onclick="selectRep(this)"><div class="ro-av" style="background:var(--pt);color:#3C3489">NK</div><div class="ro-i"><div class="ro-n">Neha Kumar</div><div class="ro-m">4 active deals · Last active 30m ago · <span style="color:var(--s)">Available</span></div></div><div class="ro-s"></div></div>
+      <div class="rop" onclick="selectRep(this)"><div class="ro-av" style="background:var(--at);color:#633806">RM</div><div class="ro-i"><div class="ro-n">Rahul Mehta</div><div class="ro-m">6 active deals · Last active 1d ago · <span style="color:var(--a)">Current owner</span></div></div><div class="ro-s"></div></div>
+      <div class="rop" onclick="selectRep(this)"><div class="ro-av" style="background:#FCEBEB;color:#791F1F">VR</div><div class="ro-i"><div class="ro-n">Vikram Rao</div><div class="ro-m">3 active deals · Last active 3d ago · <span style="color:var(--d)">At risk</span></div></div><div class="ro-s"></div></div>
+    </div>
+    <div class="cta" onclick="showSheet('reassign-confirm-sheet')">Confirm reassignment</div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- BL TEAM -->
+<div class="screen" id="bl-team">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="tb"><div class="logo"><span class="lo">Sy</span><span class="ly">oo</span><span class="lo">k</span></div><div class="tr"><div class="av">AK</div></div></div>
+  <div class="gr"><div class="gr-hi">May 2026</div><div class="gr-nm">Team overview</div></div>
+  <div class="sc">
+    <div class="lbl">4 active reps</div>
+    <div class="rcard" onclick="go('bl-rep-detail')"><div class="rtop"><div class="rav" style="background:var(--st);color:#27500A">PS</div><div style="flex:1"><div class="rn">Priya Sharma</div><div style="font-size:11px;color:var(--sec)">Mumbai · Asia/Kolkata</div></div><span class="rst rs-a">Active</span></div><div class="rstats"><div class="rstt"><div class="rsv">8</div><div class="rsl">Active</div></div><div class="rstt"><div class="rsv g">3</div><div class="rsl">Won</div></div><div class="rstt"><div class="rsv">₹14L</div><div class="rsl">Won value</div></div><div class="rstt"><div class="rsv">2h</div><div class="rsl">Last active</div></div></div></div>
+    <div class="rcard" onclick="go('bl-rep-detail')"><div class="rtop"><div class="rav" style="background:var(--at);color:#633806">RM</div><div style="flex:1"><div class="rn">Rahul Mehta</div><div style="font-size:11px;color:var(--sec)">Delhi · Asia/Kolkata</div></div><span class="rst rs-q">Quiet</span></div><div class="rstats"><div class="rstt"><div class="rsv">6</div><div class="rsl">Active</div></div><div class="rstt"><div class="rsv g">1</div><div class="rsl">Won</div></div><div class="rstt"><div class="rsv">₹4L</div><div class="rsl">Won value</div></div><div class="rstt"><div class="rsv">1d</div><div class="rsl">Last active</div></div></div></div>
+    <div class="rcard" onclick="go('bl-rep-detail')"><div class="rtop"><div class="rav" style="background:var(--pt);color:#3C3489">NK</div><div style="flex:1"><div class="rn">Neha Kumar</div><div style="font-size:11px;color:var(--sec)">Bangalore · Asia/Kolkata</div></div><span class="rst rs-a">Active</span></div><div class="rstats"><div class="rstt"><div class="rsv">4</div><div class="rsl">Active</div></div><div class="rstt"><div class="rsv g">2</div><div class="rsl">Won</div></div><div class="rstt"><div class="rsv">₹11L</div><div class="rsl">Won value</div></div><div class="rstt"><div class="rsv">30m</div><div class="rsl">Last active</div></div></div></div>
+    <div class="rcard" onclick="go('bl-rep-detail')"><div class="rtop"><div class="rav" style="background:#FCEBEB;color:#791F1F">VR</div><div style="flex:1"><div class="rn">Vikram Rao</div><div style="font-size:11px;color:var(--sec)">Chennai · Asia/Kolkata</div></div><span class="rst rs-r">At risk</span></div><div class="rstats"><div class="rstt"><div class="rsv">3</div><div class="rsl">Active</div></div><div class="rstt"><div class="rsv g">0</div><div class="rsl">Won</div></div><div class="rstt"><div class="rsv">₹0</div><div class="rsl">Won value</div></div><div class="rstt"><div class="rsv">3d</div><div class="rsl">Last active</div></div></div></div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="go('bl-home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go('bl-pipeline')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('bl-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni active"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Team</span></div>
+    <div class="ni" onclick="go('bl-settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></div>
+  </div>
+</div>
+
+<!-- BL REP DETAIL -->
+<div class="screen" id="bl-rep-detail">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="back()">‹</div><span class="nb-t">Rep detail</span></div>
+  <div class="prof-hdr">
+    <div class="prof-av">PS</div>
+    <div><div class="prof-name">Priya Sharma</div><div class="prof-role">Sales Associate · Mumbai</div></div>
+  </div>
+  <div class="sc">
+    <div class="ins-stat-row" style="padding-top:8px">
+      <div class="ins-stat"><div class="is-val">₹47L</div><div class="is-lbl">Pipeline value</div></div>
+      <div class="ins-stat"><div class="is-val" style="color:var(--s)">₹14L</div><div class="is-lbl">Won this month</div></div>
+      <div class="ins-stat"><div class="is-val">8</div><div class="is-lbl">Active deals</div></div>
+      <div class="ins-stat"><div class="is-val" style="color:var(--d)">1</div><div class="is-lbl">At risk</div></div>
+    </div>
+    <div class="lbl">Active deals</div>
+    <div style="padding:0 11px">
+      <div class="dc" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">TechVision — SaaS</span><span class="dv">₹24L</span></div><div class="dm"><span class="dc-co">TechVision Ltd</span><span class="dpill dp-g">Proposal</span></div></div></div>
+      <div class="dc" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--a)"></div><div class="db"><div class="dt"><span class="dn">GlobalNet — Q3 Proposal</span><span class="dv">₹9L</span></div><div class="dm"><span class="dc-co">GlobalNet India</span><span class="dpill dp-p">Negotiation ⚠️</span></div></div></div>
+      <div class="dc" onclick="go('bl-deal-view')"><div class="ds" style="background:var(--bd)"></div><div class="db"><div class="dt"><span class="dn">Bajaj — FinTech</span><span class="dv">₹15L</span></div><div class="dm"><span class="dc-co">Bajaj Group</span><span class="dpill dp-g">Proposal</span></div></div></div>
+    </div>
+    <div class="lbl">Activity log</div>
+    <div class="scard" style="margin:0 11px 9px">
+      <div class="ai"><div class="aico aip">📞</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Call logged</span><span class="ai-tm">Today 9:15am</span></div><div class="ai-s">GlobalNet — Pricing discussion</div></div></div>
+      <div class="ai"><div class="aico aig">→</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span class="ai-t">Stage updated</span><span class="ai-tm">Yesterday</span></div><div class="ai-s">TechVision: Prospecting → Proposal</div></div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- BL NOTIFICATIONS -->
+<div class="screen" id="bl-notif">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="nb"><div class="nb-back" onclick="back()">‹</div><span class="nb-t">Notifications</span><span style="font-size:11px;color:var(--p);font-weight:700;cursor:pointer">Mark all read</span></div>
+  <div class="sc">
+    <div class="lbl">Today</div>
+    <div class="ng"><div class="ngh"><div><div class="ngn">Pipeline alert</div><div class="ngc">Team-wide</div></div><span class="ngct">3 new</span></div>
+      <div class="nitem unr"><div class="nico nic-r">🚨</div><div class="nbdy"><div class="ntt">4 deals flagged as critical</div><div class="nts">Acme Corp, Infosys Q4, Reliance Enterprise +1 more</div><div class="ntm">11:20am</div><div class="nact"><div class="nab p" onclick="go('bl-pipeline')">View pipeline</div></div></div><div class="undot"></div></div>
+      <div class="nitem unr"><div class="nico nic-a">⏱</div><div class="nbdy"><div class="ntt">Rahul M. has been quiet for 24h</div><div class="nts">6 active deals with no update</div><div class="ntm">9:00am</div><div class="nact"><div class="nab p" onclick="go('bl-rep-detail')">View rep</div></div></div><div class="undot"></div></div>
+      <div class="nitem unr"><div class="nico nic-p">👤</div><div class="nbdy"><div class="ntt">Bulk upload completed</div><div class="nts">12 new deals imported · 1 error</div><div class="ntm">8:30am</div></div><div class="undot"></div></div>
+    </div>
+    <div class="lbl">Yesterday</div>
+    <div class="ng"><div class="ngh"><div><div class="ngn">Reassignment</div><div class="ngc">Acme Corp</div></div></div>
+      <div class="nitem"><div class="nico nic-g">✓</div><div class="nbdy"><div class="ntt">Deal reassigned successfully</div><div class="nts">Rahul M. → Priya S. — confirmed</div><div class="ntm">Yesterday 4:10pm</div></div></div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="go('bl-home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go('bl-pipeline')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('bl-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni" onclick="go('bl-team')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Team</span></div>
+    <div class="ni" onclick="go('bl-settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></div>
+  </div>
+</div>
+
+<!-- BL SETTINGS -->
+<div class="screen" id="bl-settings">
+  <div class="sb"><span>9:41</span><span>WiFi</span></div>
+  <div class="prof-hdr">
+    <div class="prof-av" style="font-size:14px">AK</div>
+    <div><div class="prof-name">Arjun Kumar</div><div class="prof-role">Business Leader · India Region</div></div>
+  </div>
+  <div class="sc">
+    <div class="lbl">Team management</div>
+    <div class="scard" style="margin:0 11px 8px">
+      <div class="prof-item" onclick="go('bl-team')"><div class="prof-icon">👥</div><span class="prof-label">Manage reps</span><span style="color:var(--mu)">›</span></div>
+      <div class="prof-item" onclick="showSheet('bl-qs-sheet')"><div class="prof-icon">📤</div><span class="prof-label">Bulk upload deals</span><span style="color:var(--mu)">›</span></div>
+      <div class="prof-item" onclick="showToast('Export started — check email')"><div class="prof-icon">📊</div><span class="prof-label">Export pipeline report</span><span style="color:var(--mu)">›</span></div>
+      <div class="prof-item" onclick="showSheet('bl-qs-sheet')"><div class="prof-icon">🔄</div><span class="prof-label">Bulk assign deals</span><span style="color:var(--mu)">›</span></div>
+    </div>
+    <div class="lbl">Preferences</div>
+    <div class="scard" style="margin:0 11px 8px">
+      <div class="prof-item"><div class="prof-icon">🔔</div><span class="prof-label">Alert thresholds</span><span style="color:var(--mu)">›</span></div>
+      <div class="prof-item"><div class="prof-icon">🌍</div><span class="prof-label">Timezone — Asia/Kolkata</span><span style="color:var(--mu)">›</span></div>
+      <div class="prof-item"><div class="prof-icon">📋</div><span class="prof-label">Stale deal threshold — 3 days</span><span style="color:var(--mu)">›</span></div>
+    </div>
+    <div class="scard" style="margin:0 11px 8px">
+      <div class="prof-item" onclick="showToast('Signed out')" style="color:var(--d)"><div class="prof-icon" style="background:#FCEBEB">🚪</div><span class="prof-label" style="color:var(--d)">Sign out</span></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="go('bl-home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+    <div class="ni" onclick="go('bl-pipeline')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>Pipeline</span></div>
+    <div class="addw"><div class="addbtn" onclick="showSheet('bl-qs-sheet')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <div class="ni" onclick="go('bl-team')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Team</span></div>
+    <div class="ni active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     BOTTOM SHEETS — SA ROLE ONLY
+════════════════════════════════════════ -->
+
+<!-- SA FAB SHEET -->
+<div class="so" id="sa-qs-sheet" onclick="closeSheetIfOverlay(event,'sa-qs-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Quick actions</div>
+    <div class="qsgrid">
+      <div class="qsi" onclick="closeSheet('sa-qs-sheet');showSheet('add-deal-sheet')"><div class="qsi-ico">➕</div><span>Add Deal</span></div>
+      <div class="qsi" onclick="closeSheet('sa-qs-sheet');showSheet('log-call-sheet')"><div class="qsi-ico">📞</div><span>Log Call</span></div>
+      <div class="qsi" onclick="closeSheet('sa-qs-sheet');showSheet('upload-doc-sheet')"><div class="qsi-ico">📎</div><span>Upload Document</span></div>
+      <div class="qsi" onclick="closeSheet('sa-qs-sheet');showSheet('add-note-sheet')"><div class="qsi-ico">📝</div><span>Add Note</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DEAL SHEET -->
+<div class="so" id="add-deal-sheet" onclick="closeSheetIfOverlay(event,'add-deal-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Add new deal</div>
+    <div class="field-group"><div class="field-label">Company name</div><input class="field-input" placeholder="e.g. Tata Consultancy"></div>
+    <div class="field-group"><div class="field-label">Deal name</div><input class="field-input" placeholder="e.g. Enterprise Q4 Rollout"></div>
+    <div class="field-group"><div class="field-label">Deal value (₹)</div><input class="field-input" type="number" placeholder="e.g. 1500000"></div>
+    <div class="field-group"><div class="field-label">Stage</div><select class="field-select"><option>Prospecting</option><option>Qualification</option><option>Proposal</option><option>Negotiation</option></select></div>
+    <div class="field-group"><div class="field-label">Expected close date</div><input class="field-input" type="date"></div>
+    <button class="dl-btn" style="margin-top:4px" onclick="closeSheet('add-deal-sheet');showToast('Deal added ✓')">Add deal</button>
+  </div>
+</div>
+
+<!-- LOG CALL SHEET -->
+<div class="so" id="log-call-sheet" onclick="closeSheetIfOverlay(event,'log-call-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Log call</div>
+    <div class="field-group"><div class="field-label">Deal</div><select class="field-select"><option>Acme Corp — Enterprise</option><option>GlobalNet — Q3 Proposal</option><option>TechVision — SaaS Rollout</option><option>Wipro — Analytics</option></select></div>
+    <div class="field-group"><div class="field-label">Call outcome</div><select class="field-select"><option>Connected</option><option>No answer</option><option>Left voicemail</option><option>Meeting scheduled</option></select></div>
+    <div class="field-group"><div class="field-label">Notes</div><textarea class="field-input" placeholder="What was discussed..."></textarea></div>
+    <div class="field-group"><div class="field-label">Duration (minutes)</div><input class="field-input" type="number" placeholder="e.g. 15"></div>
+    <button class="dl-btn" onclick="closeSheet('log-call-sheet');showToast('Call logged ✓')">Log call</button>
+  </div>
+</div>
+
+<!-- ADD NOTE SHEET -->
+<div class="so" id="add-note-sheet" onclick="closeSheetIfOverlay(event,'add-note-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Add note</div>
+    <div class="field-group"><div class="field-label">Deal</div><select class="field-select"><option>Acme Corp — Enterprise</option><option>GlobalNet — Q3 Proposal</option><option>TechVision — SaaS Rollout</option><option>Wipro — Analytics</option></select></div>
+    <div class="field-group"><div class="field-label">Note</div><textarea class="field-input" style="min-height:100px" placeholder="Add a note about this deal..."></textarea></div>
+    <button class="dl-btn" onclick="closeSheet('add-note-sheet');showToast('Note added ✓')">Save note</button>
+  </div>
+</div>
+
+<!-- UPLOAD DOC SHEET -->
+<div class="so" id="upload-doc-sheet" onclick="closeSheetIfOverlay(event,'upload-doc-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Upload document</div>
+    <div class="field-group"><div class="field-label">Deal</div><select class="field-select"><option>Acme Corp — Enterprise</option><option>GlobalNet — Q3 Proposal</option><option>TechVision — SaaS Rollout</option><option>Wipro — Analytics</option></select></div>
+    <div class="field-group"><div class="field-label">Document type</div><select class="field-select"><option>Proposal</option><option>Pricing sheet</option><option>Contract</option><option>Demo deck</option><option>Other</option></select></div>
+    <div style="background:var(--bg);border:1.5px dashed var(--pb);border-radius:11px;padding:20px;text-align:center;margin-bottom:9px;cursor:pointer" onclick="showToast('File picker opened')"><div style="font-size:24px;margin-bottom:5px">📎</div><div style="font-size:12px;font-weight:700;color:var(--ink)">Tap to choose file</div><div style="font-size:11px;color:var(--sec);margin-top:2px">PDF, DOCX, XLSX, PPTX</div></div>
+    <button class="dl-btn" onclick="closeSheet('upload-doc-sheet');showToast('Document uploaded ✓')">Upload document</button>
+  </div>
+</div>
+
+<!-- UPDATE STAGE SHEET -->
+<div class="so" id="update-stage-sheet" onclick="closeSheetIfOverlay(event,'update-stage-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Update stage</div>
+    <div style="font-size:12px;color:var(--sec);margin-bottom:9px">Acme Corp — Enterprise · Currently: <strong style="color:var(--p)">Negotiation</strong></div>
+    <div class="scard" style="margin-bottom:9px">
+      <div class="rop" onclick="selectStage(this,'Prospecting')"><div style="width:10px;height:10px;border-radius:50%;background:var(--mu);flex-shrink:0"></div><div class="ro-i"><div class="ro-n">Prospecting</div></div><div class="ro-s"></div></div>
+      <div class="rop" onclick="selectStage(this,'Qualification')"><div style="width:10px;height:10px;border-radius:50%;background:var(--a);flex-shrink:0"></div><div class="ro-i"><div class="ro-n">Qualification</div></div><div class="ro-s"></div></div>
+      <div class="rop" onclick="selectStage(this,'Proposal')"><div style="width:10px;height:10px;border-radius:50%;background:var(--s);flex-shrink:0"></div><div class="ro-i"><div class="ro-n">Proposal</div></div><div class="ro-s"></div></div>
+      <div class="rop" onclick="selectStage(this,'Negotiation')"><div style="width:10px;height:10px;border-radius:50%;background:var(--p);flex-shrink:0"></div><div class="ro-i"><div class="ro-n">Negotiation</div><div class="ro-m" style="color:var(--p)">Current stage</div></div><div class="ro-s sel">✓</div></div>
+      <div class="rop" onclick="selectStage(this,'Closed Won')"><div style="width:10px;height:10px;border-radius:50%;background:var(--s);flex-shrink:0"></div><div class="ro-i"><div class="ro-n">Closed Won</div></div><div class="ro-s"></div></div>
+      <div class="rop" onclick="selectStage(this,'Closed Lost')"><div style="width:10px;height:10px;border-radius:50%;background:var(--d);flex-shrink:0"></div><div class="ro-i"><div class="ro-n">Closed Lost</div></div><div class="ro-s"></div></div>
+    </div>
+    <button class="dl-btn" onclick="closeSheet('update-stage-sheet');showToast('Stage updated ✓')">Update stage</button>
+  </div>
+</div>
+
+<!-- DEAL OPTIONS SHEET (⋯) -->
+<div class="so" id="deal-options-sheet" onclick="closeSheetIfOverlay(event,'deal-options-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Deal actions</div>
+    <div class="scard" style="margin-bottom:9px">
+      <div class="prof-item" onclick="closeSheet('deal-options-sheet');showToast('Deal marked on hold')"><div class="prof-icon">⏸</div><span class="prof-label">Mark on hold</span></div>
+      <div class="prof-item" onclick="closeSheet('deal-options-sheet');showToast('Reassignment requested')"><div class="prof-icon">🔄</div><span class="prof-label">Request reassignment</span></div>
+      <div class="prof-item" onclick="closeSheet('deal-options-sheet');showSheet('add-note-sheet')"><div class="prof-icon">📝</div><span class="prof-label">Add note</span></div>
+      <div class="prof-item" onclick="closeSheet('deal-options-sheet');showToast('Sharing link copied')"><div class="prof-icon">🔗</div><span class="prof-label">Share deal link</span></div>
+    </div>
+    <div class="scard">
+      <div class="prof-item" style="color:var(--d)" onclick="closeSheet('deal-options-sheet');showToast('Deal archived')"><div class="prof-icon" style="background:#FCEBEB">🗑</div><span class="prof-label" style="color:var(--d)">Archive deal</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     BOTTOM SHEETS — BL ROLE ONLY
+════════════════════════════════════════ -->
+
+<!-- BL FAB SHEET -->
+<div class="so" id="bl-qs-sheet" onclick="closeSheetIfOverlay(event,'bl-qs-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Quick actions</div>
+    <div class="qsgrid">
+      <div class="qsi" onclick="closeSheet('bl-qs-sheet');showSheet('bl-add-deal-sheet')"><div class="qsi-ico">➕</div><span>Add Deal</span></div>
+      <div class="qsi" onclick="closeSheet('bl-qs-sheet');showSheet('bl-bulk-upload-sheet')"><div class="qsi-ico">📤</div><span>Bulk Upload</span></div>
+      <div class="qsi" onclick="closeSheet('bl-qs-sheet');go('bl-reassign')"><div class="qsi-ico">🔄</div><span>Assign Deals</span></div>
+      <div class="qsi" onclick="closeSheet('bl-qs-sheet');showToast('Exporting pipeline report...')"><div class="qsi-ico">📊</div><span>Export Pipeline</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- BL ADD DEAL SHEET -->
+<div class="so" id="bl-add-deal-sheet" onclick="closeSheetIfOverlay(event,'bl-add-deal-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Add deal</div>
+    <div class="field-group"><div class="field-label">Company name</div><input class="field-input" placeholder="e.g. Hindustan Unilever"></div>
+    <div class="field-group"><div class="field-label">Deal name</div><input class="field-input" placeholder="e.g. Enterprise Q3 Rollout"></div>
+    <div class="field-group"><div class="field-label">Deal value (₹)</div><input class="field-input" type="number" placeholder="e.g. 2500000"></div>
+    <div class="field-group"><div class="field-label">Assign to rep</div><select class="field-select"><option>Priya Sharma</option><option>Rahul Mehta</option><option>Neha Kumar</option><option>Vikram Rao</option></select></div>
+    <div class="field-group"><div class="field-label">Stage</div><select class="field-select"><option>Prospecting</option><option>Qualification</option><option>Proposal</option><option>Negotiation</option></select></div>
+    <button class="dl-btn" onclick="closeSheet('bl-add-deal-sheet');showToast('Deal added and assigned ✓')">Add &amp; assign deal</button>
+  </div>
+</div>
+
+<!-- BL BULK UPLOAD SHEET -->
+<div class="so" id="bl-bulk-upload-sheet" onclick="closeSheetIfOverlay(event,'bl-bulk-upload-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Bulk upload deals</div>
+    <div style="background:var(--bg);border:1.5px dashed var(--pb);border-radius:11px;padding:16px;text-align:center;margin-bottom:9px;cursor:pointer" onclick="showToast('File picker opened')">
+      <div style="font-size:24px;margin-bottom:5px">📤</div>
+      <div style="font-size:12px;font-weight:700;color:var(--ink)">Upload CSV / Excel</div>
+      <div style="font-size:11px;color:var(--sec);margin-top:2px">Max 500 rows · Download template below</div>
+    </div>
+    <div class="tprev">
+      <div class="tr-h"><div class="th">Company</div><div class="th">Value</div><div class="th">Stage</div></div>
+      <div class="tr-d"><div class="td">Hindustan Unilever</div><div class="td">₹25L</div><div class="td">Proposal</div></div>
+      <div class="tr-d"><div class="td">HDFC Bank</div><div class="td">₹18L</div><div class="td">Negotiation</div></div>
+      <div class="tr-d"><div class="tdrop">❌ Missing stage</div><div class="td">₹9L</div><div class="td">—</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--sec);margin-bottom:9px">Preview: 12 valid rows · 1 error — fix before importing</div>
+    <button class="dl-btn" onclick="closeSheet('bl-bulk-upload-sheet');showSheet('bulk-success-sheet')">Import 12 deals</button>
+    <button class="dl-btn" style="background:var(--bg);color:var(--ink);border:.5px solid var(--bd);margin-top:7px" onclick="showToast('Template downloaded')">⬇ Download template</button>
+  </div>
+</div>
+
+<!-- BULK SUCCESS SHEET -->
+<div class="so" id="bulk-success-sheet" onclick="closeSheetIfOverlay(event,'bulk-success-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="succ">
+      <div class="succ-ico"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="succ-t">12 deals imported</div>
+      <div class="succ-s">Deals have been distributed to available reps based on capacity. 1 row had errors — review flagged items.</div>
+      <button class="dl-btn" onclick="closeSheet('bulk-success-sheet');go('bl-pipeline')">View pipeline</button>
+    </div>
+  </div>
+</div>
+
+<!-- REASSIGN CONFIRM SHEET -->
+<div class="so" id="reassign-confirm-sheet" onclick="closeSheetIfOverlay(event,'reassign-confirm-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Confirm reassignment</div>
+    <div class="adeal-card" style="margin-bottom:9px">
+      <div class="adeal-nm">Acme Corp — Enterprise</div>
+      <div class="adeal-meta" style="margin-top:4px;display:flex;align-items:center;gap:5px"><span style="background:var(--at);color:#633806;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px">Rahul M.</span><span style="font-size:12px;color:var(--mu)">→</span><span style="background:var(--st);color:#27500A;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px">Priya S.</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--sec);line-height:1.5;margin-bottom:11px">Both reps will be notified immediately. Rahul M. will lose access to this deal's Team Chat.</div>
+    <div style="display:flex;gap:7px">
+      <button class="bb" onclick="closeSheet('reassign-confirm-sheet')">Cancel</button>
+      <button class="bb pri" onclick="closeSheet('reassign-confirm-sheet');showSheet('reassign-done-sheet')">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- REASSIGN DONE SHEET -->
+<div class="so" id="reassign-done-sheet" onclick="closeSheetIfOverlay(event,'reassign-done-sheet')">
+  <div class="sht">
+    <div class="sh-handle"></div>
+    <div class="succ">
+      <div class="succ-ico"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="succ-t">Deal reassigned</div>
+      <div class="succ-s">Acme Corp — Enterprise has been reassigned to Priya Sharma. Both reps have been notified.</div>
+      <button class="dl-btn" onclick="closeSheet('reassign-done-sheet');go('bl-home')">Back to home</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+</div><!-- /device -->
+
+<script>
+// ─── STATE ───────────────────────────────
+var currentRole = null;
+var screenHistory = [];
+var currentScreen = null;
+
+// ─── LAUNCH ──────────────────────────────
+function launchAs(role){
+  document.getElementById('role-launch').style.display = 'none';
+  document.getElementById('main-header').style.display = 'block';
+  document.getElementById('role-switcher').style.display = 'flex';
+  document.getElementById('device').style.display = 'flex';
+  switchRole(role);
+}
+
+// ─── ROLE SWITCH ─────────────────────────
+function switchRole(role){
+  currentRole = role;
+  // Update role switcher buttons
+  document.getElementById('rb-sa').classList.toggle('active', role==='sa');
+  document.getElementById('rb-bl').classList.toggle('active', role==='bl');
+  // Close all sheets
+  document.querySelectorAll('.so').forEach(s=>s.classList.remove('show'));
+  // Show correct home screen
+  var home = role==='sa' ? 'sa-home' : 'bl-home';
+  screenHistory = [home];
+  showScreen(home);
+}
+
+// ─── NAVIGATION ──────────────────────────
+function go(id){
+  if(!document.getElementById(id)) return;
+  // Safety: BL must never open SA-only screens
+  var saOnly = ['sa-home','sa-pipeline','sa-deal','sa-notif','sa-insights','sa-profile'];
+  var blOnly = ['bl-home','bl-pipeline','bl-deal-view','bl-reassign','bl-reassign-pick','bl-team','bl-rep-detail','bl-notif','bl-settings'];
+  if(currentRole==='bl' && saOnly.indexOf(id)>-1) return;
+  if(currentRole==='sa' && blOnly.indexOf(id)>-1) return;
+  if(currentScreen) screenHistory.push(currentScreen);
+  showScreen(id);
+}
+
+function back(){
+  if(screenHistory.length>1){
+    screenHistory.pop();
+    var prev = screenHistory[screenHistory.length-1];
+    showScreen(prev);
+  }
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){
+    s.classList.remove('active');
+  });
+  var el = document.getElementById(id);
+  if(el){ el.classList.add('active'); currentScreen = id; }
+}
+
+// ─── SHEETS ──────────────────────────────
+function showSheet(id){
+  // Safety: BL must never see SA sheets and vice versa
+  var saSheets = ['sa-qs-sheet','add-deal-sheet','log-call-sheet','add-note-sheet','upload-doc-sheet','update-stage-sheet','deal-options-sheet'];
+  var blSheets = ['bl-qs-sheet','bl-add-deal-sheet','bl-bulk-upload-sheet','bulk-success-sheet','reassign-confirm-sheet','reassign-done-sheet'];
+  if(currentRole==='bl' && saSheets.indexOf(id)>-1) return;
+  if(currentRole==='sa' && blSheets.indexOf(id)>-1) return;
+  var el = document.getElementById(id);
+  if(el) el.classList.add('show');
+}
+
+function closeSheet(id){
+  var el = document.getElementById(id);
+  if(el) el.classList.remove('show');
+}
+
+function closeSheetIfOverlay(e, id){
+  if(e.target.classList.contains('so')) closeSheet(id);
+}
+
+// ─── PIPELINE GROUP TOGGLE ───────────────
+function toggleGroup(id){
+  var body = document.getElementById(id+'-body');
+  var arrow = document.getElementById(id+'-arrow');
+  if(!body) return;
+  if(body.style.maxHeight==='0px'||body.style.maxHeight==='0'){
+    body.style.maxHeight='300px';
+    body.style.overflow='visible';
+    if(arrow) arrow.textContent='▾';
+  } else {
+    body.style.maxHeight='0';
+    body.style.overflow='hidden';
+    if(arrow) arrow.textContent='›';
+  }
+}
+
+// ─── SHOW MORE (deal detail) ─────────────
+function toggleShowMore(el){
+  var content = el.nextElementSibling;
+  var arrow = el.querySelector('.show-more-arrow');
+  var lbl = el.querySelector('.sml');
+  if(content.classList.contains('open')){
+    content.classList.remove('open');
+    if(arrow) arrow.textContent='▾';
+    if(lbl) lbl.textContent='Show more — next action, notes, deal source';
+  } else {
+    content.classList.add('open');
+    if(arrow) arrow.textContent='▴';
+    if(lbl) lbl.textContent='Show less';
+  }
+}
+
+// ─── TABS ────────────────────────────────
+function switchTab(el, tcId){
+  var tabs = el.parentElement.querySelectorAll('.tab');
+  tabs.forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  var tabContents = document.querySelectorAll('#sa-deal .tc');
+  tabContents.forEach(function(tc){ tc.classList.remove('active'); });
+  var tc = document.getElementById(tcId);
+  if(tc) tc.classList.add('active');
+}
+
+// ─── PIPELINE FILTERS (SA) ───────────────
+function filterPipeline(chip, stage){
+  setActiveChip(chip, 'pipeline-filters');
+  var items = document.querySelectorAll('.pipeline-item');
+  var shown = 0;
+  items.forEach(function(item){
+    var show = stage==='all' || item.dataset.stage===stage;
+    item.style.display = show ? 'flex' : 'none';
+    if(show) shown++;
+  });
+  var lbl = document.getElementById('sa-pl-lbl');
+  if(lbl) lbl.textContent = stage==='all' ? 'All deals ('+shown+')' : stage+' ('+shown+')';
+}
+
+// ─── PIPELINE FILTERS (BL) ───────────────
+function filterBLPipeline(chip, filter){
+  setActiveChip(chip, 'bl-pipeline-filters');
+  var items = document.querySelectorAll('.blp-item');
+  var shown = 0;
+  items.forEach(function(item){
+    var show = false;
+    if(filter==='all') show = true;
+    else if(filter==='critical') show = item.dataset.state==='critical';
+    else if(filter==='stale') show = item.dataset.state==='stale';
+    else show = item.dataset.stage===filter;
+    item.style.display = show ? 'flex' : 'none';
+    if(show) shown++;
+  });
+  var lbl = document.getElementById('bl-pl-lbl');
+  if(lbl){
+    var label = filter==='all' ? 'All team deals' : filter.charAt(0).toUpperCase()+filter.slice(1)+' deals';
+    lbl.textContent = label+' ('+shown+')';
+  }
+}
+
+// ─── REP FILTERS (BL) ────────────────────
+function filterReps(chip, status){
+  setActiveChip(chip, 'bl-rep-filter');
+  var items = document.querySelectorAll('.rep-item');
+  items.forEach(function(item){
+    var show = status==='all' || item.dataset.status===status;
+    item.style.display = show ? 'block' : 'none';
+  });
+}
+
+// ─── HISTORY FILTERS ────────────────────
+function filterHistory(chip, type){
+  var parent = chip.closest('.tc');
+  var chips = parent.querySelectorAll('.fchip');
+  chips.forEach(function(c){ c.classList.remove('active'); });
+  chip.classList.add('active');
+  var items = parent.querySelectorAll('.hist-item');
+  items.forEach(function(item){
+    var show = type==='all' || item.dataset.type===type;
+    item.style.display = show ? 'flex' : 'none';
+  });
+}
+
+// ─── CHIP HELPERS ────────────────────────
+function setActiveChip(chip, containerId){
+  var chips = document.getElementById(containerId)?
+    document.getElementById(containerId).querySelectorAll('.fchip') :
+    chip.parentElement.querySelectorAll('.fchip');
+  chips.forEach(function(c){ c.classList.remove('active'); });
+  chip.classList.add('active');
+}
+
+function toggleChip(el){
+  el.classList.toggle('sel');
+}
+
+// ─── REP SELECTION (reassign) ────────────
+function selectRep(row){
+  var all = row.parentElement.querySelectorAll('.rop');
+  all.forEach(function(r){
+    r.querySelector('.ro-s').classList.remove('sel');
+    r.querySelector('.ro-s').textContent='';
+  });
+  var sel = row.querySelector('.ro-s');
+  sel.classList.add('sel');
+  sel.textContent='✓';
+}
+
+// ─── STAGE SELECTION ────────────────────
+function selectStage(row, stage){
+  var all = row.parentElement.querySelectorAll('.rop');
+  all.forEach(function(r){
+    var s = r.querySelector('.ro-s');
+    if(s){ s.classList.remove('sel'); s.textContent=''; }
+    var m = r.querySelector('.ro-m');
+    if(m && m.style.color){ m.style.color=''; m.textContent=''; }
+  });
+  var sel = row.querySelector('.ro-s');
+  if(sel){ sel.classList.add('sel'); sel.textContent='✓'; }
+}
+
+// ─── CHAT ────────────────────────────────
+function sendChatMsg(){
+  var input = document.getElementById('chat-msg-input');
+  var msgs = document.getElementById('chat-messages');
+  if(!input||!msgs) return;
+  var text = input.value.trim();
+  if(!text) return;
+  var now = new Date();
+  var time = 'Today '+now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes()+(now.getHours()<12?'am':'pm');
+  var msg = document.createElement('div');
+  msg.className='cmsg own';
+  msg.innerHTML='<div class="cav" style="background:var(--st);color:#27500A">RS</div><div class="cbub"><div class="csn">Rahul S.</div><div class="ctxt">'+escHtml(text)+'</div><div class="ctm">'+time+'</div></div>';
+  msgs.appendChild(msg);
+  msgs.scrollTop=msgs.scrollHeight;
+  input.value='';
+}
+
+function escHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── PIN BANNER CLOSE ───────────────────
+document.querySelectorAll('.pinb-close').forEach(function(btn){
+  btn.addEventListener('click', function(){ btn.closest('.pinb').style.display='none'; });
+});
+
+// ─── TOAST ───────────────────────────────
+var toastTimer;
+function showToast(msg){
+  var t = document.getElementById('toast');
+  if(!t) return;
+  clearTimeout(toastTimer);
+  t.textContent = msg;
+  t.classList.add('show');
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+</script>
+</body>
+</html>
